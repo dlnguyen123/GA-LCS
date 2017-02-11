@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 public class LCS 
 {
+    //lcs checker
     public String lcs(String str1, String str2)
     {
         //get the length of boths strings for comparison
