@@ -16,6 +16,7 @@ public class LCS
 {
     public String lcs(String str1, String str2)
     {
+        //get the length of boths strings for comparison
         int l1 = str1.length();
         int l2 = str2.length();
  
