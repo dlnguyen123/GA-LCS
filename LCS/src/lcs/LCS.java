@@ -12,8 +12,9 @@ package lcs;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-public class LCS {
-	public String lcs(String str1, String str2)
+public class LCS 
+{
+    public String lcs(String str1, String str2)
     {
         int l1 = str1.length();
         int l2 = str2.length();
@@ -48,7 +49,6 @@ public class LCS {
         }
         return sb.toString();
     }
- 
     
     public static void main(String[] args) throws IOException
     {    
