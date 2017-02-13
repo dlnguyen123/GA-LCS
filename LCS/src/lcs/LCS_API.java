@@ -24,6 +24,7 @@ public class LCS_API {
     private int[][] parents;
     private int[][] children;
     private double[] fitness;
+    private String shorterString, longerString;
     //private int populationSize;         //M
     //private int maxNumberOfGenerations; //G
     //private double probOfXover;         //pL
@@ -36,11 +37,11 @@ public class LCS_API {
         String result="";
         
         //sets the variable to the string that is smaller or equeal to
-        String smallerString = ((firstInput.length()<=secondInput.length())? firstInput : secondInput );
+        shorterString = ((firstInput.length()<=secondInput.length())? firstInput : secondInput );
         //sets the comparer variable to the string that is larger
-        String comparerString = ((firstInput.length()>secondInput.length())? firstInput : secondInput );
+        longerString = ((firstInput.length()>secondInput.length())? firstInput : secondInput );
         
-        init(M,smallerString.length());
+        init(M,shorterString.length());
         
         do{
             breedParents(M, pL, pM, pR);
@@ -72,8 +73,50 @@ public class LCS_API {
     }
     
     private double checkFitness(int[] solution) {
-        //This needs implemented
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Uses the shorter and longer strings
+        char currentChar;
+        int basePosition = 0;
+        int currentPosition = 0;
+        boolean success = false;
+        double myFitness = 0.0;
+        
+        //for each selected letter, test it against the longer string from the
+        //current position to the last.
+        for (int i = 0; i < solution.length; i++) 
+        {
+            //Set currentChar to the current character of the solution
+            currentChar = shorterString.charAt(i);
+            
+            //Reset the current position for each letter in the solution
+            currentPosition = 0;
+            
+            do //for every character in the longer string
+            { 
+                //if the current character is found in the longer string
+                if (currentChar == longerString.charAt(basePosition+currentPosition)) 
+                {
+                    //Mark it as a success
+                    success = true;
+                }
+                
+                //increment the position
+                currentPosition++;
+            } while (!success & (basePosition+currentPosition) < longerString.length());
+            
+            //if the previous loop found the current character in the longer string
+            if (success) {
+                //Increase the fitness
+                myFitness += .5;
+                //Set the new base position to the relative current position
+                basePosition += currentPosition - 1;
+            }
+            else{
+                //decrease the fitness
+                myFitness -= .5;
+            }
+        }
+        
+        return myFitness;
     }
     
     private int[] xoverSoution(int[] firstSolution, int[] secondSolution) {
@@ -124,7 +167,7 @@ public class LCS_API {
                     break;
                 default:
                     //Default? Probably just set it to replacement
-                    
+                    children[j]=parents[firstParent];//reproduction
                     break;
             }     
         }
