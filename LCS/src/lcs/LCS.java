@@ -58,14 +58,19 @@ public class LCS
         System.out.println("Longest Common Subsequence Algorithm Test\n");
  
         System.out.println("\nEnter string 1");
-        String str1 = br.readLine();
+        String str1 = "prudence";
  
         System.out.println("\nEnter string 2");
-        String str2 = br.readLine();
+        String str2 = "providence";
  
         LCS obj = new LCS(); 
-        String result = obj.lcs(str1, str2);
- 
+        String result = obj.lcs(str1, str2); 
+        System.out.println("\nLongest Common Subsequence : "+ result);
+        
+        
+        System.out.println("\nNow testing our algorithm...");        
+        LCS_API myApi = new LCS_API();
+        result = myApi.findLcs(str1,str2,10,100,.75,.20,.05);
         System.out.println("\nLongest Common Subsequence : "+ result);
     }
 }

@@ -47,10 +47,18 @@ public class LCS_API {
             breedParents(M, pL, pM, pR);
             
             //G is the max number of generations
-            //if we decide to go with an alternate convergence mecahnism
+            //It also checks whether the values have converged
             G--;
-        }while(G > 0);
+        }while(G > 0 & !isConverged(M));
         
+        //build up result string of best solution
+        int bestSolutionIndex = getBestSolution();
+        for (int i = 0; i < parents[bestSolutionIndex].length; i++) {
+            if(parents[bestSolutionIndex][i]==1)
+            {
+                result += shorterString.charAt(i);
+            }
+        }
         
         return result;
     }
@@ -72,11 +80,41 @@ public class LCS_API {
         }
     }
     
+    private boolean isConverged(int populationSize)
+    {
+        boolean result = true;
+        for (int i = 1; i < populationSize; i++) {
+            if (parents[0] != parents[i])
+            {
+                result = false;
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * checkFitness
+     * @param solution
+     * @return double value that represents the solution's fitness
+     * 
+     * Algorithm:
+     * 1. For each character in the shorter string:
+     * 2. Check if current character is "selected":
+     * 3. If not selected, go to step 2 and next character.
+     * 4. If selected, check if the character is in the longer string from the
+     *    base position to the end. Add a value to the fitness.
+     * 5. If it is, set that position as the new base position and add to 
+     *    the overall fitness of the solution.
+     * 6. If it is not found, keep the same base position as before and reduce
+     *    the overall fitness of the solution.
+     * 7. Repeat steps 2 through 6 until the solution is checked and return the
+     *    fitness value that is found.
+     */
     private double checkFitness(int[] solution) {
         //Uses the shorter and longer strings
         char currentChar;
         int basePosition = 0;
-        int currentPosition = 0;
+        int currentPosition;
         boolean success = false;
         double myFitness = 0.0;
         
@@ -84,55 +122,109 @@ public class LCS_API {
         //current position to the last.
         for (int i = 0; i < solution.length; i++) 
         {
-            //Set currentChar to the current character of the solution
-            currentChar = shorterString.charAt(i);
-            
-            //Reset the current position for each letter in the solution
-            currentPosition = 0;
-            
-            do //for every character in the longer string
-            { 
-                //if the current character is found in the longer string
-                if (currentChar == longerString.charAt(basePosition+currentPosition)) 
-                {
-                    //Mark it as a success
-                    success = true;
-                }
+            //If the current position is a "1" (selected)
+            if (solution[i] == 1)
+            {
+                //Add to the fitness
+                myFitness += .25;
                 
-                //increment the position
-                currentPosition++;
-            } while (!success & (basePosition+currentPosition) < longerString.length());
-            
-            //if the previous loop found the current character in the longer string
-            if (success) {
-                //Increase the fitness
-                myFitness += .5;
-                //Set the new base position to the relative current position
-                basePosition += currentPosition - 1;
+                //Set currentChar to the current character of the solution
+                currentChar = shorterString.charAt(i);
+
+                //Reset the current position for each letter in the solution
+                currentPosition = 0;
+
+                do //for every character in the longer string
+                { 
+                    //if the current character is found in the longer string
+                    if (currentChar == longerString.charAt(basePosition+currentPosition)) 
+                    {
+                        //Mark it as a success
+                        success = true;
+                    }
+
+                    //increment the position
+                    currentPosition++;
+                } while (!success & (basePosition+currentPosition) < longerString.length());
+
+                //if the previous loop found the current character in the longer string
+                if (success) {
+                    //Increase the fitness
+                    myFitness += .5;
+                    //Set the new base position to the relative current position
+                    basePosition += currentPosition;
+                }
+                else{
+                    //decrease the fitness
+                    myFitness -= .5;
+                }
             }
-            else{
-                //decrease the fitness
-                myFitness -= .5;
+            else
+            {
+                //If the position is not selected, reduce fitness by a little
+                myFitness -= .125;
             }
         }
         
         return myFitness;
     }
     
-    private int[] xoverSoution(int[] firstSolution, int[] secondSolution) {
+    private int[][] xoverSoution(int[] firstSolution, int[] secondSolution) 
+    {
         //Takes two possible solution int arrays and picks a random point
-        //to crossover the values and returns the resulting array.
-        //Could potentially have it repeat a set number of times depending on probability.
+        //to crossover the values and returns two children sets.
+        
+        //Could potentially have it repeat a set number of times depending on probability?
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private int[] mutateSolution(int[] parent) {
+    private int[] mutateSolution(int[] parent) 
+    {
         //For a given solution, pick a random point and flip it.
         //Could repeat this a random number of times, repeating the 
         //probability check every time.
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    private double[] normalizeFitness(double [] oldFitness)
+    {
+        double[] rankedFitness = new double[oldFitness.length];
+        double currentSmallest;
+        int smallestIndex = 0;
+        
+        //for every fitness in the array
+        for (int i = 0; i < oldFitness.length; i++) {
+            //find the ith smallest, add it to the new array, and set the old to
+            //a very large value to avoid being picked again
+            
+            currentSmallest = Double.MAX_VALUE;
+            
+            //find smallest value
+            for (int j = 0; j < oldFitness.length; j++) 
+            {
+                if (currentSmallest>=oldFitness[j])
+                {
+                    currentSmallest = oldFitness[j];
+                    smallestIndex = j;
+                }
+            }
+            
+            //add smallest value to new array
+            rankedFitness[smallestIndex] = i + 1;
+            oldFitness[smallestIndex] = Double.MAX_VALUE;
+        }
+        return rankedFitness;
+    }
+    
+    /**
+     * breedParents
+     * @param populationSize
+     * @param pL
+     * @param pM
+     * @param pR 
+     * Algorithm:
+     * 
+     */
     private void breedParents(int populationSize, double pL, double pM, double pR) 
     {
         //get fitness of all parents
@@ -140,6 +232,9 @@ public class LCS_API {
             //for each solution, check its fitness
             fitness[i] = checkFitness(parents[i]);
         }
+        
+        //Rank and readjust the fitness of the parents for better results
+        fitness = normalizeFitness(fitness);
         
         //Repeat the breeding process to produce every child
         for (int j = 0; j < populationSize; j++) {
@@ -155,11 +250,16 @@ public class LCS_API {
                     //crossover
                     //pick second parent that is unique to breed 
                     secondParent = rouletteSelect(fitness);
-                    children[j]=xoverSoution(parents[firstParent], parents[secondParent]);
+                    //Gets and adds the two (or multiple) children
+                    //int[][] multipleChildren = xoverSoution(parents[firstParent], parents[secondParent]);
+                    //for (int[] multipleChildren1 : multipleChildren) {
+                    //    children[j] = multipleChildren1;
+                    //    j++;
+                    //}
                     break;
                 case 2:
                     //mutation - mutate the parent values
-                    children[j]=mutateSolution(parents[firstParent]);
+                    //children[j]=mutateSolution(parents[firstParent]);
                     break;
                 case 3:
                     //reproduction
@@ -176,13 +276,32 @@ public class LCS_API {
         children = parents;
     }
     
+    private int getBestSolution()
+    {
+        int largestIndex = 0;
+        double currentLargestFitness = Double.MIN_VALUE;
+        
+        //get fitness of all parents
+        for (int i = 0; i < parents.length; i++) {
+            //for each solution, check its fitness
+            fitness[i] = checkFitness(parents[i]);
+            
+            if (fitness[i] > currentLargestFitness)
+            {
+                largestIndex = i;
+            }
+        }
+        
+        return largestIndex;
+    }
+    
     /**
      * The following roulette wheel code is adapted from
      * the Wikipedia example code at the following link:
      * https://en.wikipedia.org/wiki/Fitness_proportionate_selection
      */
     // Returns the selected index based on the weights(probabilities)
-    int rouletteSelect(double[] weight) {
+    private int rouletteSelect(double[] weight) {
             // calculate the total weight
             double weight_sum = 0;
             for(int i=0; i<weight.length; i++) {
@@ -200,7 +319,7 @@ public class LCS_API {
     }
 
     // Returns a uniformly distributed double value between 0.0 and 1.0
-    double randUniformPositive() {
+    private double randUniformPositive() {
             // easiest implementation
             return new Random().nextDouble();
     }
