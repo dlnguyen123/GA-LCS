@@ -25,6 +25,7 @@ public class LCS_API {
     private int[][] children;
     private double[] fitness;
     private String shorterString, longerString;
+   
     //private int populationSize;         //M
     //private int maxNumberOfGenerations; //G
     //private double probOfXover;         //pL
@@ -169,13 +170,24 @@ public class LCS_API {
         return myFitness;
     }
     
-    private int[][] xoverSoution(int[] firstSolution, int[] secondSolution) 
+    private int[] xoverSolution(int[] firstSolution, int[] secondSolution) 
     {
         //Takes two possible solution int arrays and picks a random point
         //to crossover the values and returns two children sets.
-        
+      
         //Could potentially have it repeat a set number of times depending on probability?
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int[]child = new int[firstSolution.length];
+        int xover = (int) (Math.random()*firstSolution.length); //make crossover
+        for (int i = 0;i<firstSolution.length;i++)
+        {
+            if (i < xover)
+                child[i]=firstSolution[i];
+            else
+                child[i]=secondSolution[i];
+            
+        }
+        return child;
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private int[] mutateSolution(int[] parent) 
